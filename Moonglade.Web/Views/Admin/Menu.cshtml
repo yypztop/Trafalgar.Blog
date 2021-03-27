@@ -1,0 +1,147 @@
+﻿@{
+    Layout = "_LayoutAdmin";
+}
+@model MenuManageModel
+
+@section scripts{
+    <script>
+        $(".btn-delete").click(function () {
+            var cfm = confirm("Delete Confirmation?");
+            if (cfm) deleteMenu($(this).data("menuid"));
+        });
+
+        $(".btn-edit").click(function () {
+            editMenu($(this).data("menuid"));
+        });
+
+        $(".btn-submit").click(function () {
+            if ($("#edit-form").valid()) {
+                var action = '';
+                var menuId = $("#MenuEditViewModel_Id").val();
+                if (menuId == emptyGuid) {
+                    action = "create";
+                }
+                else {
+                    action = "edit";
+                }
+
+                callApi(`/api/menu/${action}`, 'POST',
+                    {
+                        "Id": $("#MenuEditViewModel_Id").val(),
+                        "Title": $("#MenuEditViewModel_Title").val(),
+                        "Url": $("#MenuEditViewModel_Url").val(),
+                        "Icon": $("#MenuEditViewModel_Icon").val(),
+                        "DisplayOrder": parseInt($("#MenuEditViewModel_DisplayOrder").val()),
+                        "IsOpenInNewTab": $('#MenuEditViewModel_IsOpenInNewTab').prop('checked')
+                    },
+                    (resp) => {
+                        $("#edit-form")[0].reset();
+                        $("#editMenuModal").modal('hide');
+                        window.location.reload();
+                    });
+            }
+        });
+    </script>
+}
+
+<h3>
+    @Localizer["Navigation Menus"]
+    <a class="btn btn-outline-success float-right" href="javascript:initCreateMenu();">
+        <span class="icon-plus"></span>
+        @Localizer["New"]
+    </a>
+</h3>
+<hr />
+
+<div class="alert alert-info">
+    @Localizer["To turn on / off system navigation items (Categories / Tags / Archive), edit"] <code>appsettings.json</code> @Localizer["or override with environment variables."]
+</div>
+
+@if (null != Model.MenuItems && Model.MenuItems.Any())
+{
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>@Localizer["Title"]</th>
+                <th>@Localizer["URL"]</th>
+                <th>@Localizer["Icon"]</th>
+                <th>@Localizer["Order"]</th>
+                <th>@Localizer["Open in New Tab"]</th>
+                <th>@Localizer["Action"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.MenuItems.OrderBy(p => p.DisplayOrder))
+            {
+                <tr id="tr-@item.Id">
+                    <td>@item.Title</td>
+                    <td>@item.Url</td>
+                    <td>@item.Icon</td>
+                    <td>@item.DisplayOrder</td>
+                    <td>@item.IsOpenInNewTab</td>
+                    <td class="p-2">
+                        <a href="javascript:;" data-menuid="@item.Id" class="btn btn-sm btn-outline-accent btn-edit"><span class="icon-pencil"></span></a>
+                        <a href="javascript:;" data-menuid="@item.Id" class="btn btn-sm btn-outline-danger btn-delete"><span class="icon-bin"></span></a>
+
+                        <span id="span-processing-@item.Id" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">@Localizer["No Customized Menus"]</div>
+}
+
+<div class="modal fade" id="editMenuModal" tabindex="-1" role="dialog" aria-labelledby="editMenuModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editMenuModalLabel">@Localizer["Menu Information"]</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form id="edit-form" method="post">
+                <div class="modal-body">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <input type="hidden" asp-for="MenuEditViewModel.Id" />
+                    <div class="form-group">
+                        <label asp-for="MenuEditViewModel.Title"></label>
+                        <input asp-for="MenuEditViewModel.Title" class="form-control" />
+                        <span asp-validation-for="MenuEditViewModel.Title" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="MenuEditViewModel.Url"></label>
+                        <input asp-for="MenuEditViewModel.Url" class="form-control" />
+                        <span asp-validation-for="MenuEditViewModel.Url" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="MenuEditViewModel.Icon"></label>
+                        <input asp-for="MenuEditViewModel.Icon" class="form-control" />
+                        <span asp-validation-for="MenuEditViewModel.Icon" class="text-danger"></span>
+                        <p class="text-muted">Check <a href="https://github.com/EdiWang/Moonglade-Icons" target="_blank">here</a> for icons</p>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="MenuEditViewModel.DisplayOrder"></label>
+                        <input asp-for="MenuEditViewModel.DisplayOrder" class="form-control" />
+                        <span asp-validation-for="MenuEditViewModel.DisplayOrder" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input asp-for="MenuEditViewModel.IsOpenInNewTab" class="custom-control-input" type="checkbox">
+                            <label asp-for="MenuEditViewModel.IsOpenInNewTab" class="custom-control-label">@Localizer["Open in New Tab"]</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success btn-submit">@Localizer["Submit"]</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">@Localizer["Cancel"]</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

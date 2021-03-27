@@ -1,0 +1,32 @@
+﻿@model X.PagedList.StaticPagedList<Moonglade.Core.PostDigest>
+
+@{
+    ViewBag.TitlePrefix = ViewBag.CategoryDisplayName;
+    ViewBag.ActionName = "list";
+    ViewBag.ShowBloggerIntroInXS = true;
+}
+
+<h3 class="h3-cat-list">
+    <a class="float-right d-none d-md-block"
+       asp-controller="Subscription"
+       asp-action="Rss"
+       asp-route-routeName="@(((string)ViewBag.CategoryRouteName).ToLower())" target="_blank"
+       title="Subscribe @(ViewBag.CategoryDisplayName)">
+        <span class="icon-rss font-125rem"></span>
+    </a>
+    <span>@ViewBag.CategoryDisplayName</span>
+    <small class="d-none d-md-inline text-muted">@ViewBag.CategoryDescription</small>
+</h3>
+<hr />
+@if (Model.Any())
+{
+    <partial name="_PostList" />
+}
+else
+{
+    <div class="alert alert-info">
+        @Localizer["No Posts."]
+    </div>
+}
+
+<partial name="_LightSwitch" />

@@ -1,0 +1,158 @@
+﻿@{
+    Layout = "_LayoutAdmin";
+}
+
+@model FriendLinkSettingsViewModelWrap
+
+@section scripts{
+    <script>
+        $(function () {
+            $(".btn-delete").click(function () {
+                var cfm = confirm("Delete Confirmation?");
+                if (cfm) {
+                    deleteFriendLink($(this).data("friendlinkid"));
+                }
+            });
+
+            $(".btn-edit").click(function () {
+                editFriendLink($(this).data("friendlinkid"));
+            });
+        });
+
+        $(".btn-submit").click(function () {
+            if ($("#edit-form").valid()) {
+                var action = '';
+                var friendlinkId = $("#FriendLinkEditViewModel_Id").val();
+                if (friendlinkId == emptyGuid) {
+                    action = "create";
+                }
+                else {
+                    action = "edit";
+                }
+
+                callApi(`/api/friendlink/${action}`, 'POST',
+                    {
+                        "Id": $("#FriendLinkEditViewModel_Id").val(),
+                        "Title": $("#FriendLinkEditViewModel_Title").val(),
+                        "LinkUrl": $("#FriendLinkEditViewModel_LinkUrl").val()
+                    },
+                    (resp) => {
+                        $("#edit-form")[0].reset();
+                        $("#editFriendlinkModal").modal('hide');
+                        window.location.reload();
+                    });
+            }
+        });
+    </script>
+}
+
+
+<h3>
+    @Localizer["Friend Links"]
+    <a class="btn btn-outline-success float-right" href="javascript:initCreateFriendLink();">
+        <span class="icon-plus"></span>
+        @Localizer["New"]
+    </a>
+</h3>
+<hr />
+
+<div class="row">
+    <div class="col-md-8">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        @Localizer["Title"]
+                    </th>
+                    <th>
+                        @Localizer["Link"]
+                    </th>
+                    <th class="table-item-w20">
+                        @Localizer["Action"]
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.FriendLinks.OrderBy(m => m.Title))
+                {
+                    <tr id="tr-@item.Id">
+                        <td>
+                            @item.Title
+                        </td>
+                        <td>
+                            @item.LinkUrl
+                        </td>
+                        <td>
+                            <a href="javascript:;" data-friendlinkid="@item.Id" class="btn btn-sm btn-outline-primary btn-edit"><span class="icon-pencil"></span></a>
+                            <a href="javascript:;" data-friendlinkid="@item.Id" class="btn btn-sm btn-outline-danger btn-delete"><span class="icon-bin"></span></a>
+                            <span id="span-processing-@item.Id" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-4">
+        <form id="form-settings" asp-controller="Settings" asp-action="FriendLink"
+              data-ajax-begin="onUpdateSettingsBegin"
+              data-ajax-complete="onUpdateSettingsComplete"
+              data-ajax-failure="onUpdateSettingsFailed"
+              data-ajax-success="onUpdateSettingsSuccess"
+              data-ajax="true"
+              data-ajax-method="POST">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="card mb-4">
+                <div class="card-header">@Localizer["Friend Link Options"]</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" asp-for="FriendLinkSettingsViewModel.ShowFriendLinksSection" class="custom-control-input">
+                            <label asp-for="FriendLinkSettingsViewModel.ShowFriendLinksSection" class="custom-control-label"></label>
+                        </div>
+                    </li>
+                </ul>
+                <div class="card-footer">
+                    <input id="btn-save-settings" type="submit" value="@Localizer["Save"]" class="btn btn-success" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+<p class="text-muted mt-4">@Localizer["* Note: Friend link cache refreshes every 60 minutes, you may need to wait for some time to see the new data."]</p>
+
+<div class="modal fade" id="editFriendlinkModal" tabindex="-1" role="dialog" aria-labelledby="editFriendlinkModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editFriendlinkModalLabel">@Localizer["Friend Link Information"]</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form id="edit-form" method="post">
+                <div class="modal-body">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <input type="hidden" asp-for="FriendLinkEditViewModel.Id" />
+                    <div class="form-group">
+                        <label asp-for="FriendLinkEditViewModel.Title"></label>
+                        <input asp-for="FriendLinkEditViewModel.Title" class="form-control" />
+                        <span asp-validation-for="FriendLinkEditViewModel.Title" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="FriendLinkEditViewModel.LinkUrl"></label>
+                        <input asp-for="FriendLinkEditViewModel.LinkUrl" class="form-control" />
+                        <span asp-validation-for="FriendLinkEditViewModel.LinkUrl" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success btn-submit">@Localizer["Submit"]</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">@Localizer["Cancel"]</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

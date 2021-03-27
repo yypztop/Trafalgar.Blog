@@ -1,0 +1,16 @@
+{
+  "TagNormalization": [
+    {
+      "Source": ".",
+      "Target": "dot"
+    },
+    {
+      "Source": "#",
+      "Target": "sharp"
+    },
+    {
+      "Source": " ",
+      "Target": "-"
+    }
+  ]
+}

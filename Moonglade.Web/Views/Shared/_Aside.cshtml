@@ -1,0 +1,122 @@
+﻿<aside class="col-lg-3 d-none d-lg-block">
+    <feature name="Widgets_Profile">
+        <section class="blog-info-desktop-lg text-light d-none d-lg-block">
+            <div class="card-bkimg-container">
+                <img class="card-bkimg" alt="" src="@Url.Action("Avatar", "Assets")" />
+            </div>
+            <div class="blog-info-photo-text text-center">
+                <img src="@Url.Action("Avatar", "Assets")"
+                     alt="@BlogConfig.GeneralSettings.OwnerName"
+                     class="rounded-circle blogger-head-pic" />
+                <div>
+                    <h3 class="mt-3 text-white font-sairas">
+                        @BlogConfig.GeneralSettings.OwnerName
+                    </h3>
+                    <p class="mr-3 ml-3">
+                        @BlogConfig.GeneralSettings.Description
+                    </p>
+                </div>
+            </div>
+        </section>
+    </feature>
+
+    @if (!string.IsNullOrWhiteSpace(BlogConfig.GeneralSettings.SideBarCustomizedHtmlPitch))
+    {
+        @Html.Raw(BlogConfig.GeneralSettings.SideBarCustomizedHtmlPitch)
+    }
+
+    <feature name="Widgets_HotTags">
+        <section id="aside-tags" class="mb-4">
+            <div class="card">
+                <div class="card-header">@Localizer["Hot Tags"]</div>
+                <div class="card-body">
+                    <cache expires-after="@TimeSpan.FromMinutes(60)">
+                        @await Component.InvokeAsync("HotTags")
+                    </cache>
+                    <hr />
+                    <a asp-controller="Home" asp-action="Tags" class="card-link">
+                        <i class="icon-price-tag mr-1"></i>
+                        @Localizer["All Tags"]
+                    </a>
+                </div>
+            </div>
+        </section>
+    </feature>
+
+    <feature name="Widgets_CategoryList">
+        <section id="aside-cats" class="mb-4">
+            <div class="card">
+                <div class="card-header">@Localizer["Categories"]</div>
+                @await Component.InvokeAsync("CategoryList", new { isMenu = false })
+            </div>
+        </section>
+    </feature>
+
+    @if (BlogConfig.FriendLinksSettings.ShowFriendLinksSection)
+    {
+        <section id="aside-friendlink" class="mb-4">
+            <cache expires-after="@TimeSpan.FromMinutes(60)">
+                @await Component.InvokeAsync("FriendLink")
+            </cache>
+        </section>
+    }
+
+    <feature name="Widgets_SubscriptionButtons">
+        <section id="aside-subscription" class="text-center mb-4">
+            <a class="btn btn-sm btn-round btn-outline-secondary mr-2" href="#" data-toggle="modal" data-target="#subscriptionmodal">
+                <span class="icon-rss"></span>
+                RSS / Atom
+            </a>
+
+            <feature name="OPML">
+                <a asp-controller="Subscription" asp-action="Opml" class="btn btn-sm btn-round btn-outline-secondary" target="_blank">
+                    <span class="icon-embed2"></span>
+                    OPML
+                </a>
+            </feature>
+        </section>
+    </feature>
+
+    @if (BlogConfig.SecuritySettings.ShowAdminLoginButton)
+    {
+        <div class="text-center">
+            <a asp-action="Index" asp-controller="Admin" class="btn btn-sm btn-light">@Localizer["Admin Login"]</a>
+        </div>
+    }
+</aside>
+
+<feature name="Widgets_SubscriptionButtons">
+    <div class="modal fade" id="subscriptionmodal" tabindex="-1" role="dialog" aria-labelledby="subscriptionmodalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="subscriptionmodalLabel">RSS / Atom Feed</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <a asp-controller="Subscription" asp-action="rss" class="btn btn-block btn-outline-success">
+                                @Localizer["Latest Posts"] (RSS)
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a asp-controller="Subscription" asp-action="Atom" class="btn btn-block btn-outline-success">
+                                @Localizer["Latest Posts"] (Atom)
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        @await Component.InvokeAsync("RssList")
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">@Localizer["Close"]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</feature>
+

@@ -1,0 +1,74 @@
+﻿@{
+    Layout = "_LayoutAdmin";
+}
+
+@model IEnumerable<Moonglade.Pingback.PingbackRecord>
+
+@Html.AntiForgeryToken()
+
+@section head{
+    <link href="~/css/3rd/datatables.min.css" rel="stylesheet" />
+    <script src="~/js/3rd/datatables.min.js"></script>
+}
+
+@section scripts{
+    <script>
+        $(".btn-delete").click(function () {
+            deletePingback($(this).data("pingbackid"));
+        });
+
+        $(function () {
+            $("#pingbacks-table").DataTable({
+                "order": [[3, "desc"]],
+                "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+                "pageLength": 10
+            });
+        });
+    </script>
+}
+
+<h3>
+    @Localizer["Pingbacks"]
+</h3>
+<hr />
+
+<table id="pingbacks-table" class="table table-bordered">
+    <thead>
+        <tr>
+            <th>@Localizer["Link"]</th>
+            <th>@Localizer["Destination Server"]</th>
+            <th>@Localizer["Referenced Post"]</th>
+            <th>@Localizer["Ping Time (UTC)"]</th>
+            <th>@Localizer["Operation"]</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderByDescending(p => p.PingTimeUtc))
+        {
+            <tr id="pingback-box-@item.Id">
+                <td class="table-item-w30">
+                    <a href="@item.SourceUrl" target="_blank">@item.SourceTitle</a>
+                </td>
+                <td>
+                    @item.Domain <br />
+                    <small class="text-muted">
+                        @item.SourceIp
+                    </small>
+                </td>
+                <td class="table-item-w30">
+                    @item.TargetPostTitle
+                </td>
+                <td data-sort="@item.PingTimeUtc.ToString("yyyyMMddHHmmss")">
+                    @item.PingTimeUtc
+                </td>
+                <td class="p-2">
+                    <a class="btn btn-sm btn-outline-danger btn-delete" href="#" data-pingbackid="@item.Id">
+                        <span class="icon-bin"></span> 
+
+                        <span id="span-processing-@item.Id" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

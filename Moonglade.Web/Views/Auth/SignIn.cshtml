@@ -1,0 +1,62 @@
+﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+@using Moonglade.Utils
+@model SignInViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        @Localizer["Admin Sign In"]
+    </title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <partial name="_Favicons" />
+    <environment exclude="Development">
+        <link href="~/css/bundle.min.css" rel="stylesheet" asp-append-version="true" />
+    </environment>
+    <environment include="Development">
+        <link href="~/css/bundle.css" rel="stylesheet" asp-append-version="true" />
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/dist/app-bundle.min.js" asp-append-version="true"></script>
+    </environment>
+    <environment include="Development">
+        <script src="~/js/dist/app-bundle.js" asp-append-version="true"></script>
+    </environment>
+    <environment exclude="Development">
+        @Html.Raw(JavaScriptSnippet.FullScript)
+    </environment>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-md-center">
+            <div class="col-md-4">
+                <div class="card">
+                    <h6 class="card-header">@Localizer["Sign In"]</h6>
+                    <div class="card-body">
+                        <form method="post">
+                            <div asp-validation-summary="All" class="text-danger"></div>
+                            <div class="form-group">
+                                <label asp-for="Username"></label>
+                                <input asp-for="Username" class="form-control" required />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Password"></label>
+                                <input asp-for="Password" class="form-control" required />
+                            </div>
+                            <input type="submit" value="@Localizer["Sign In"]" class="btn btn-success float-right" />
+                        </form>
+                    </div>
+                </div>
+                <p class="text-muted mt-4 small text-center">
+                    @Html.Raw(Helper.FormatCopyright2Html(BlogConfig.GeneralSettings.Copyright)) <br />
+                    Moonglade @Helper.AppVersion
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

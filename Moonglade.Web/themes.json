@@ -1,0 +1,24 @@
+{
+  "Themes": [
+    {
+      "Name": "Word Blue",
+      "CssFile": "word-blue.css"
+    },
+    {
+      "Name": "Excel Green",
+      "CssFile": "excel-green.css"
+    },
+    {
+      "Name": "PowerPoint Orange",
+      "CssFile": "powerpoint-orange.css"
+    },
+    {
+      "Name": "OneNote Purple",
+      "CssFile": "onenote-purple.css"
+    },
+    {
+      "Name": "Outlook Blue",
+      "CssFile": "outlook-blue.css"
+    }
+  ]
+}

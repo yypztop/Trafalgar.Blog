@@ -1,0 +1,50 @@
+﻿@using Moonglade.Pages
+@using NUglify
+@model Page
+
+@{
+    ViewBag.TitlePrefix = Model.Title;
+    ViewBag.HideSideBar = Model.HideSidebar;
+
+    string css = null;
+    if (!string.IsNullOrWhiteSpace(Model.CssContent))
+    {
+        var uglifyResult = Uglify.Css(Model.CssContent);
+        if (!uglifyResult.HasErrors)
+        {
+            css = uglifyResult.Code;
+        }
+    }
+
+}
+
+@section head{
+    @if (!string.IsNullOrWhiteSpace(css))
+    {
+        <style>
+            @Html.Raw(css)
+        </style>
+    }
+}
+
+@section metadescription{
+    <metadesc description="@Model.MetaDescription" />
+}
+
+@if (null != ViewBag.IsDraftPreview)
+{
+    <div class="container mt-3 mb-4">
+        <div class="alert alert-info">
+            @Localizer["This is a preview for draft content."]
+        </div>
+    </div>
+}
+
+@if (BlogConfig.SecuritySettings.AllowScriptsInPage)
+{
+    @Html.Raw(Model.RawHtmlContent)
+}
+else
+{
+    @Html.Raw(PageService.RemoveScriptTagFromHtml(Model.RawHtmlContent))
+}

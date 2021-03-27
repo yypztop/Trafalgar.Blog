@@ -1,0 +1,78 @@
+﻿@using Moonglade.Utils
+@using Moonglade.Web.HtmlHelpers
+@model IReadOnlyList<Moonglade.Comments.Comment>
+@inject ITZoneResolver TZoneResolver
+
+@{
+    static string GetUserAvatarChar(string username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            return "N/A";
+        }
+
+        var sets = username.Split(' ');
+        if (sets.Length == 1)
+        {
+            return sets[0].First().ToString().ToUpper();
+        }
+        return sets.Length >= 2 ? $"{sets[0].First()}{sets[1].First()}".ToUpper() : "N/A";
+    }
+}
+
+@if (null != Model && Model.Any())
+{
+    <div class="comment-list row">
+        @foreach (var item in Model.OrderBy(m => m.CreateTimeUtc))
+        {
+            <div class="col-md-1 mb-3 d-none d-sm-block">
+                @if (BlogConfig.ContentSettings.EnableGravatar && !string.IsNullOrWhiteSpace(item.Email))
+                {
+                    <div class="user-avatar">
+                        @Html.GravatarImage(item.Email, 58, forceSecureRequest: true)
+                    </div>
+                }
+                else
+                {
+                    <div class="user-avatar-char">
+                        @GetUserAvatarChar(item.Username)
+                    </div>
+                }
+            </div>
+            <div class="col-md-11 mb-3">
+                <div class="card comment-item">
+                    <div class="card-header">
+                        <strong>@item.Username</strong>
+                        <span class="text-muted float-right"> @TZoneResolver.ToTimeZone(item.CreateTimeUtc).ToString("yyyy-M-d HH:mm")</span>
+                    </div>
+                    <div class="card-body">
+                        @Html.Raw(ContentProcessor.MarkdownToContent(item.CommentContent, ContentProcessor.MarkdownConvertType.Html))
+                        <div>
+                            @foreach (var reply in item.CommentReplies.OrderByDescending(t => t.ReplyTimeUtc))
+                            {
+                                <hr />
+                                <div class="reply-container">
+                                    <div>
+                                        <strong>
+                                            Author
+                                        </strong>
+                                        <span class="float-right text-muted">Replied at @TZoneResolver.ToTimeZone(reply.ReplyTimeUtc).ToString("yyyy-M-d HH:mm")</span>
+                                    </div>
+                                    <p>
+                                        @Html.Raw(ContentProcessor.MarkdownToContent(reply.ReplyContent, ContentProcessor.MarkdownConvertType.Html))
+                                    </p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        No Comments
+    </div>
+}

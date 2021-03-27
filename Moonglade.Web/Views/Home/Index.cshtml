@@ -1,0 +1,30 @@
+﻿@model X.PagedList.StaticPagedList<Moonglade.Core.PostDigest>
+
+@{
+    ViewBag.TitlePrefix = null;
+    ViewBag.ActionName = "Index";
+    ViewBag.ShowBloggerIntroInXS = true;
+}
+
+<h3 class="h3-cat-list">
+    <a class="float-right d-none d-md-block" asp-controller="Subscription" asp-action="Rss" target="_blank" title="@Localizer["Subscribe Recent 20 Posts"]">
+        <span class="icon-rss font-125rem"></span>
+    </a>
+    <span>
+        @Localizer["All Posts"]
+    </span>
+</h3>
+<hr />
+
+@if (Model.Any())
+{
+    <partial name="_PostList" />
+}
+else
+{
+    <div class="alert alert-info">
+        @Localizer["No Posts."]
+    </div>
+}
+
+<partial name="_LightSwitch" />

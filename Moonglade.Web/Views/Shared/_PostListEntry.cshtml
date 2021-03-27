@@ -1,0 +1,50 @@
+﻿@using System.Globalization
+@model Moonglade.Core.PostDigest
+@inject ITZoneResolver TZoneResolver
+
+<article class="article-post-summary" lang="@Model.LangCode">
+    <div class="post-date-box d-none d-md-block font-sairas">
+        <div class="post-date-day">
+            @TZoneResolver.ToTimeZone(Model.PubDateUtc).Day.ToString("00")
+        </div>
+        <div class="post-date-month text-white">
+            @TZoneResolver.ToTimeZone(Model.PubDateUtc).ToString("MMM").ToUpper()
+        </div>
+    </div>
+    <div class="post-summary-box d-block">
+        <time datetime="@Model.PubDateUtc.ToString("u")" class="d-none">
+            @Model.PubDateUtc
+        </time>
+
+        <h4 class="post-summary-title mb-3">
+            <a asp-controller="Post" asp-action="Slug"
+               asp-route-year="@Model.PubDateUtc.Year"
+               asp-route-month="@Model.PubDateUtc.Month"
+               asp-route-day="@Model.PubDateUtc.Day"
+               asp-route-slug="@Model.Slug">
+                @Model.Title
+            </a>
+
+            @if (Model.IsSelected)
+            {
+                <i class="icon icon-star-full text-warning"></i>
+            }
+        </h4>
+
+        <p class="post-summary-text">@(Model.ContentAbstract)</p>
+        @if (null != Model.Tags)
+        {
+            <div class="post-summary-tags pt-2">
+                @foreach (var tag in Model.Tags)
+                {
+                    <a asp-controller="Home"
+                       asp-action="TagList"
+                       asp-route-normalizedName="@tag.NormalizedName"
+                       class="d-inline-block mr-1 btn btn-sm btn-accent">
+                        @tag.DisplayName
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</article>

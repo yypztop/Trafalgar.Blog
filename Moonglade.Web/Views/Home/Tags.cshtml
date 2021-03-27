@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.TitlePrefix = "Tags";
+}
+
+@using System.Web
+@model IReadOnlyList<KeyValuePair<Moonglade.Core.Tag, int>>
+
+@functions {
+    private static string Weight(double weightPercent)
+    {
+        var weight = weightPercent switch
+        {
+            >= 99 => "danger",
+            >= 70 => "success",
+            >= 40 => "accent",
+            >= 20 => "secondary",
+            _ => "outline-secondary"
+        };
+        return weight;
+    }
+}
+
+<h3>
+    @Localizer["Tags"]
+</h3>
+<hr />
+
+@if (Model.Any())
+{
+    var tagMax = Model.Select(p => p.Value).Max();
+
+    <ul class="list-unstyled text-justify">
+        @foreach (var tag in Model.OrderBy(t => t.Key.DisplayName))
+        {
+            var weightPercent = tag.Value * 1.0 / tagMax * 100;
+            var weight = Weight(weightPercent);
+
+            <li class="d-inline-block mb-2 mr-2">
+                <a asp-controller="Home"
+                   asp-action="TagList"
+                   asp-route-normalizedName="@HttpUtility.UrlDecode(tag.Key.NormalizedName.ToLower())"
+                   class="btn btn-sm btn-@weight" title="@(tag.Value)">
+                    @tag.Key.DisplayName.Replace("-", " ")
+                </a>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <div class="alert alert-info">
+        @Localizer["No Tags"]
+    </div>
+}
+
+<partial name="_LightSwitch" />
