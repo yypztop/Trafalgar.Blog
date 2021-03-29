@@ -1580,3 +1580,13 @@ h1.post-title, .post-content h1 {
 .darkmode .hljs-constant, .darkmode .hljs-reserved {
     color: #f44747
 }
+
+.answer {
+    color: rgba(0,0,0,0);
+    cursor: pointer;
+}
+
+    .answer:hover {
+        color: var(--accent-color1);
+        font-weight: bolder;
+    }
